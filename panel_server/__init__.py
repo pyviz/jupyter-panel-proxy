@@ -24,6 +24,7 @@ LAUNCHER_ENTRY = {
 
 DEFAULT_CONFIG = {
     'autoreload': True,
+    'admin': True,
     'file_types': ['ipynb', 'py'],
     'launcher_entry': LAUNCHER_ENTRY
 }
@@ -56,7 +57,7 @@ def _discover_apps():
     if 'apps' in config:
         found_apps = []
         for app_spec in config.get('apps', []):
-            found_apps += glob.glob(app_spec)
+            found_apps += glob.glob(app_spec, recursive=True)
     else:
         found_apps = _search_apps(config)
     exclude_patterns = config.get('exclude_patterns', []) + EXCLUDE_PATTERNS
@@ -74,6 +75,8 @@ def _launch_command(port):
         command.append('--autoreload')
     if config.get('warm'):
         command.append('--warm')
+    if config.get('admin'):
+        command.append('--admin')
     if 'num_procs' in config:
         command += ['--num-procs', str(config['num_procs'])]
     if 'static_dirs' in config:
@@ -85,7 +88,7 @@ def _launch_command(port):
         command += ['--oauth-encryption-key', Fernet.generate_key()]
         command += ['--cookie-secret', generate_secret_key()]
     if 'oauth_key' in config:
-        command += ['--oauth-key', config['oauth_key']]    
+        command += ['--oauth-key', config['oauth_key']]
     if 'oauth_secret' in config:
         command += ['--oauth-secret', config['oauth_secret']]
     if 'oauth_redirect_uri' in config:
